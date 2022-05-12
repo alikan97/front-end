@@ -1,11 +1,10 @@
-import './App.css';
 import Header from './views/components/header';
 import { Route, Routes } from 'react-router-dom';
 import {AllItemsPage,RequestItemPage, MyItemsPage, LoginPage, RegisterPage} from './views/pages/index';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App font-main">
       <Header />
       <Routes>
         <Route path="/" element={<AllItemsPage/>}/>

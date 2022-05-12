@@ -1,9 +1,11 @@
-import "./all-items-page.css";
+/* eslint-disable jsx-a11y/alt-text */
+import Sidebar from "../../components/sidebar";
+
 
 const AllItemsPage: React.FC = () => {
     return (
-        <div className="page11">
-            <h1> PAGES </h1>
+        <div>
+            <Sidebar />
         </div>
     );
 }
