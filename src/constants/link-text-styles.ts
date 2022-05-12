@@ -1,0 +1,1 @@
+export const staticLinkStyles = {textDecoration: 'none', color: 'inherit'};

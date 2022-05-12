@@ -1,0 +1,43 @@
+.header-list-item {
+  display: inline-block;
+  margin-left: 20px;
+  color: black;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 3px;
+  transition: 0.3s ease all;
+}
+
+.header-list-item:hover {
+  background: green;
+  color: white;
+  text-decoration: none;
+}
+
+.header-column {
+  display: inline-block;
+  width: 90%;
+  left: auto;
+  text-align: right;
+}
+
+.header-title {
+  width: 9%;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.header {
+  background: white;
+  padding: 9px 5px;
+  width: 100%;
+  display: block;
+}
+
+.header-list {
+  clear: 0;
+  list-style: none;
+  display: block;
+  margin: 0;
+}
