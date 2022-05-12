@@ -1,4 +1,4 @@
-import { itemsDispatchTypes, ITEMS_FAILED, ITEMS_LOADING, ITEMS_SUCESS } from "../actions/item-actions";
+import { itemsDispatchTypes, ITEMS_FAILED, ITEMS_LOADING, ITEMS_SUCESS } from "../actions/action-types";
 import { initialState } from "../state";
 import { IDefaultState } from "../state";
 
