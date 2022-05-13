@@ -3,9 +3,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        "main": ["Helvetica"]
+        "main": ["Inter var", "sans-serif"]
       }
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 }

@@ -1,16 +1,9 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux-hooks';
-import { getAllItemsAction } from '../../stores/actions/item-actions';
 import { Link } from 'react-router-dom';
 import { staticLinkStyles } from '../../constants/link-text-styles';
 import "./header.css"
 
 const Header: React.FC = () => {
-    const dispatch = useAppDispatch();
-
-    const items = useAppSelector((state) => state.item);
-    const HandleClick = () => dispatch(getAllItemsAction());
-
     return (
         <header className='header'>
             <ul className='header-list'>
@@ -27,10 +20,10 @@ const Header: React.FC = () => {
                     <li className='header-list-item'>
                         <Link style={staticLinkStyles} to="/my-items"> My Items </Link>
                     </li>
-                    <li className='header-list-item' onClick={() => console.log(items)}>
+                    <li className='header-list-item'>
                         <Link style={staticLinkStyles} to="/login"> Login </Link>
                     </li>
-                    <li className='header-list-item' onClick={() => { HandleClick() }}>
+                    <li className='header-list-item'>
                         <Link style={staticLinkStyles} to="/register"> Register </Link>
                     </li>
                 </span>
