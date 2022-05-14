@@ -10,10 +10,7 @@ export enum TypeDefinitionTypes {
 export enum InputTypes {
     CALENDAR = 'calendar',
     CHECK = 'check',
-    INLINE = 'inline',
     LIST = 'list',
-    NOW = 'now',
-    RAW = 'raw',
     SLIDER = 'slider',
     TEXT = 'text',
     TOGGLE = 'toggle',
@@ -31,6 +28,6 @@ export interface MultipleTypeDefinitionValidation {
 
 export interface MultipleTypeDefinition {
     type: MultipleTypeDefinitionTypes.ARRAY | MultipleTypeDefinitionTypes.SET;
-    input: InputTypes.LIST | InputTypes.INLINE;
+    input: InputTypes.LIST;
     validation: MultipleTypeDefinitionValidation;
 }

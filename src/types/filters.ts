@@ -15,15 +15,15 @@ export interface PageableResults<T> {
 
 export interface searchOptions {
     cacheTtlMins?: number,
-    debounceWaitMilliSecs?: number;
-    minCharactersToSearch?: number
+    debounceWaitMilliSecs?: number,
+    minCharactersToSearch?: number,
 }
 export interface SearchOptionsDefined extends searchOptions {
     minCharactersToSearch: number;
     debounceWaitMilliSecs: number;
     cacheTtlMins: number;
     savedFilterStorageKey: string;
-  }
+}
 export interface SearchProviderProps<T> {
     children: ReactNode,
     entityName: string,
@@ -35,6 +35,12 @@ export interface EntityField {
     display: string,
     id: string,
 }
+export interface SearchCacheItem<T> {
+    data: T;
+    expiry: Date;
+}
+
+export type SearchCache<T> = Record<string, Record<string, SearchCacheItem<T>>>;
 
 export interface PropertyDefinition {
     label: string;
@@ -59,6 +65,7 @@ export interface AppliedFilter<T extends AppliedFilterType> {
     ids?: string[],
     value: T
 }
+
 export interface SavedFilterItem {
     filters: AppliedFilter<AppliedFilterType>[];
     created: number;
