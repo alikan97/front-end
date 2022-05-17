@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { debounce, isUndefined, omitBy } from "lodash";
+import { debounce, isUndefined, omitBy, values } from "lodash";
 import moment from "moment";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { DEFAULT_SEARCH_OPTIONS } from "../constants/search";
-import { AppliedFilter, AppliedFilterType, EntityField, PageableResults, SavedFilters, SearchCache, SearchCacheItem, SearchContextProps, SearchOptionsDefined, SearchSettings } from "../types/filters";
+import { Currency } from "../constants/enums";
+import { DEFAULT_SEARCH_OPTIONS } from "../constants/globalConstants";
+import { AppliedFilterType, PageableResults, SearchCache, SearchCacheItem, SearchContextProps, SearchOptionsDefined, SearchSettings, AppliedFilter } from "../types/filters";
 import { SearchProviderProps } from "../types/filters";
 import { addLocalStorageItem, getLocalStorageItem, setLocalStorageItem } from "../utilities/local-storage";
 
 export const SearchContext = createContext<SearchContextProps<any>>({
-    searchText: '',
+    searchText: {name: "Keyword", filter: { value: ''}},
     setSearchText: () => { },
+    Categories: {name: "Categories", filter: { value: [] }},
+    setCategories: () => { },
+    price: {name: "Price", filter: { value: 0, optionalParams: { currency: Currency.AUD }}},
+    setPrice: () => { },
     searchResults: undefined,
     searchSettings: { itemsPerPage: 0 },
     setSearchSettings: () => { },
@@ -17,14 +22,7 @@ export const SearchContext = createContext<SearchContextProps<any>>({
     setCurrentPage: () => { },
     clear: () => { },
     isLoading: false,
-    filters: [],
     savedFilters: {},
-    addFilters: () => { },
-    removeFilters: () => { },
-    saveCurrentFilters: () => { },
-    removeSavedFilter: () => { },
-    loadSavedFilters: () => { },
-    renameSavedFilter: () => false,
     error: undefined,
 });
 
@@ -35,18 +33,19 @@ export function SearchProvider<T>({ children, entityName, findItems, searchOptio
         ...omitBy(searchOptions, isUndefined),
       };
     
-    const [searchText, setSearchText] = useState('');
+    const [searchText, setSearchText] = useState<AppliedFilter<AppliedFilterType>>({name: "Keyword", filter: { value: ''}});
+    const [Categories, setCategories] = useState<AppliedFilter<AppliedFilterType>>({name: "Categories", filter: { value: [] }});
+    const [price, setPrice] = useState<AppliedFilter<AppliedFilterType>>({name: "Price", filter: { value: 0, optionalParams: { currency: Currency.AUD }}});
     const [searchResults, setSearchResults] = useState<PageableResults<T>>();
     const [currentPage, setCurrentPage] = useState(0);
     const [searchSettings, setSearchSettings] = useState<SearchSettings>(() => getLocalStorageItem('ENTITY-SEARCH', { itemsPerPage: 20 }));
     const [isLoading, setIsLoading] = useState(false);
     const [searchCache, setSearchCache] = useState<SearchCache<PageableResults<T>>>({});
     const [error, setError] = useState<Error>();
-    const [filters, setFilters] = useState<AppliedFilter<AppliedFilterType>[]>([]);
-    const [savedFilters, setSavedFilters] = useState<SavedFilters>(() => getLocalStorageItem(options.savedFilterStorageKey));
+    const [savedFilters, setSavedFilters] = useState<Record<string, AppliedFilter<AppliedFilterType>[]>>(() => getLocalStorageItem(options.savedFilterStorageKey as string));
 
     const clear = (): void => {
-        setSearchText('');
+        setSearchText({...searchText, filter: {value: ''}});
         setCurrentPage(0);
         setSearchResults(undefined);
         setError(undefined);
@@ -77,47 +76,12 @@ export function SearchProvider<T>({ children, entityName, findItems, searchOptio
         return cacheItem.data;
     }
 
+    const saveCurrentFilters = (filterName: string): void => {
+        setSavedFilters( {...savedFilters, [filterName]: [searchText, Categories, price] });
+    };
+
     const invalidateCache = (): void => {
         setSearchCache({});
-    }
-
-    const addFilters = (filtersToAdd: AppliedFilter<AppliedFilterType>[]): void => {
-        setFilters([
-            ...filters,
-            ...filtersToAdd
-        ]);
-    };
-
-    const removeFilters = (filtersToRemove: AppliedFilter<AppliedFilterType>[]): void => {
-        setFilters(filters.filter((f) => !filtersToRemove.includes(f)));
-    }
-
-    const saveCurrentFilters = (filterName: string): void => {
-        setSavedFilters({ ...savedFilters, [filterName]: { filters, created: new Date().getUTCMilliseconds() } });
-    };
-
-    const removeSavedFilter = (filterName: string): void => {
-        setSavedFilters(Object.entries(savedFilters).reduce((acc, [name, value]) => {
-            // if filterName match return current state (accumulator)
-            if (filterName === name) return acc;
-            // else, take next element
-            acc[name] = value;
-            return acc;
-        }, {} as SavedFilters));
-    }
-
-    const renameSavedFilter = (filterName: string, newFilterName: string): boolean => {
-        if (savedFilters[newFilterName]) return false;
-
-        const filterCopy = { ...savedFilters };
-        filterCopy[newFilterName] = filterCopy[filterName];
-        delete filterCopy[filterName];
-        setSavedFilters(filterCopy);
-        return true;
-    }
-
-    const loadSavedFilters = (filterName: string): void => {
-        setFilters(savedFilters[filterName].filters);
     }
 
     const retrieveItems = async (cache: SearchCache<PageableResults<T>>, text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[], settings: SearchSettings): Promise<void> => {
@@ -128,20 +92,8 @@ export function SearchProvider<T>({ children, entityName, findItems, searchOptio
             setSearchResults(cachedResult);
         } else {
             try {
-                const groupedFilters = localFilters.reduce((acc, filter) => {
-                    if (!acc[filter.propertyPath]) {
-                        acc[filter.propertyPath] = [];
-                    }
-                    acc[filter.propertyPath].push(filter);
-                    return acc;
-                }, {} as Record<string, AppliedFilter<AppliedFilterType>[]>);
-
-                const mongoFilters = Object.entries(groupedFilters).reduce((acc, [filterName, appliedFilters]) => {
-                    if (appliedFilters.length === 1) {
-                        acc.$and.push({ [filterName]: appliedFilters[0].definition.type === 'entity' ? (appliedFilters[0].value as EntityField).id : appliedFilters[0].value });
-                    } else {
-                        acc.$and.push({ '$or': appliedFilters.map((filter) => ({ [filterName]: filter.definition.type === 'entity' ? (filter.value as EntityField).id : filter.value })) });
-                    }
+                const mongoFilters = Object.entries(localFilters).reduce((acc, [filterName, appliedFilters]) => {
+                    acc.$and.push({ [filterName]: appliedFilters.filter.value})
                     return acc;
                 }, { '$and': [] } as { '$and': Record<string, unknown>[] });
 
@@ -169,53 +121,59 @@ export function SearchProvider<T>({ children, entityName, findItems, searchOptio
         }, options.debounceWaitMilliSecs), []);
 
     useEffect(() => {
-        if (!isTextSearchable(searchText)) {
+        if (!isTextSearchable(searchText.filter.value as string)) {
             setSearchResults(undefined);
             setError(undefined);
             return;
         }
-
+        console.log(price);
         setIsLoading(true);
+        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
+            searchText,
+            Categories,
+            price
+        ];
         setCurrentPage(0);
-        void debouncedFindItems(searchCache, searchText, 0, filters, searchSettings);
-    }, [searchText]);
+        void debouncedFindItems(searchCache, searchText.filter.value as string, 0, combinedFilter, searchSettings);
+    }, [price]);
 
     useEffect(() => {
-        if (!isTextSearchable(searchText)) return;
-
+        if (!isTextSearchable(searchText.filter.value as string)) return;        
         setIsLoading(true);
-        void retrieveItems(searchCache, searchText, currentPage, filters, searchSettings);
+
+        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
+            searchText,
+            Categories,
+            price
+        ];
+        void retrieveItems(searchCache, searchText.filter.value as string, currentPage, combinedFilter, searchSettings);
     }, [currentPage]);
 
     useEffect(() => {
-        if (!isTextSearchable(searchText)) return;
-
-        setIsLoading(true);
-        invalidateCache();
-        setCurrentPage(0);
-        void retrieveItems(searchCache, searchText, 0, filters, searchSettings);
-    }, [filters]);
-
-    useEffect(() => {
-        setLocalStorageItem(options.savedFilterStorageKey, savedFilters);
+        setLocalStorageItem(options.savedFilterStorageKey as string, savedFilters);
     }, [savedFilters]);
 
     useEffect(() => {
-        if (!isTextSearchable(searchText)) return;
+        if (!isTextSearchable(searchText.filter.value as string)) return;
         addLocalStorageItem('ENTITY-SEARCH', { ...searchSettings });
 
         setIsLoading(true);
+        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
+            searchText,
+            Categories,
+            price
+        ];
+
         invalidateCache();
         setCurrentPage(0);
-        void debouncedFindItems({}, searchText, 0, filters, searchSettings);
+        void debouncedFindItems({}, searchText.filter.value as string, 0, combinedFilter, searchSettings);
     }, [searchSettings]);
 
     return (
         <SearchContext.Provider value={
             {
                 searchText, setSearchText, searchResults, isLoading, searchSettings, setSearchSettings,
-                currentPage, setCurrentPage, clear, filters, savedFilters, addFilters, removeFilters,
-                saveCurrentFilters, removeSavedFilter, renameSavedFilter, loadSavedFilters, error,
+                currentPage, setCurrentPage, clear, savedFilters, Categories, setCategories, price, setPrice, error,
             }
         }>
             {children}

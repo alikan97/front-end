@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { staticLinkStyles } from '../../constants/link-text-styles';
+import { staticLinkStyles } from '../../constants/styles';
 import "./header.css"
 
 const Header: React.FC = () => {
