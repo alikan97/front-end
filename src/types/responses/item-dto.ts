@@ -4,3 +4,8 @@ export default interface item {
     price: number,
     createdDate: string
 }
+
+export interface itemsResponse {
+    itemsCount: number,
+    data: item[]
+}

@@ -8,7 +8,7 @@ export interface SearchSettings {
     itemsPerPage: number
 }
 export interface PageableResults<T> {
-    itemCount: number;
+    itemCount: number;      // all items
     results: T[];
 }
 export interface SearchOptionsDefined {
@@ -20,6 +20,7 @@ export interface SearchOptionsDefined {
 export interface SearchProviderProps<T> {
     children: ReactNode,
     entityName: string,
+    itemsPerPage: number,
     findItems: (text: string, filters: Record<string, unknown>, pagination: pagination) => Promise<PageableResults<T>>,
     searchOptions?: SearchOptionsDefined
 }
@@ -53,12 +54,9 @@ export interface SearchContextProps<T> {
     price: AppliedFilter<AppliedFilterType>,
     setPrice: (newPrice: AppliedFilter<AppliedFilterType>) => void,
     searchResults: PageableResults<T> | undefined,
-    searchSettings: SearchSettings,
-    setSearchSettings: (searchSettings: SearchSettings) => void,
     currentPage: number,
     setCurrentPage: (page: number) => void,
     clear: () => void,
     isLoading: boolean,
-    savedFilters: Record<string, AppliedFilter<AppliedFilterType>[]>,
     error: Error | undefined;
 }

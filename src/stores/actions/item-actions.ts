@@ -3,15 +3,18 @@ import { itemsApi } from "../../api/itemsApi";
 import { createItem } from "../../types/requests/item-request-dto";
 import { itemsDispatchTypes, ITEMS_CREATED, ITEMS_FAILED, ITEMS_LOADING, ITEMS_SUCESS } from "./action-types";
 
-export const getAllItemsAction = () => async (dispatch: Dispatch<itemsDispatchTypes>) => {
+export const getAllItemsAction = (skip: number, take: number) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.getitems().then((response => {
+        itemsApi.getitems(skip, take).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
-                payload: response
+                payload: {
+                    itemCount: response.itemsCount,
+                    results: response.data
+                }
             })
         }));
     } catch (error) {
@@ -46,7 +49,10 @@ export const getItemByName = (name:string) => async (dispatch: Dispatch<itemsDis
         itemsApi.getItemByName(name).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
-                payload: [response]
+                payload: {
+                    itemCount: response.length,
+                    results: response
+                }
             });
         }));
     } catch (error) {

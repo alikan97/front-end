@@ -1,3 +1,4 @@
+import { PageableResults } from "../../types/filters";
 import item from "../../types/responses/item-dto";
 
 export const ITEMS_SUCESS = "ITEMS_SUCCESS";
@@ -7,7 +8,7 @@ export const ITEMS_CREATED = "ITEMS_CREATED";
 
 export interface itemsSuccess {
     type: typeof ITEMS_SUCESS
-    payload: item[]
+    payload: PageableResults<item>
 }
 export interface itemsLoading {
     type: typeof ITEMS_LOADING

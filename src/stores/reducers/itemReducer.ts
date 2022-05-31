@@ -11,17 +11,17 @@ export const itemReducer = (state: IDefaultState = initialState, action: itemsDi
             }
         case ITEMS_FAILED:
             return {
-                items: [...state.items],
+                items: {...state.items},
                 loading: false,
             }
         case ITEMS_LOADING:
             return {
-                items: [...state.items],
+                items: {...state.items},
                 loading: true,
             }
         default:
             return {
-                items: [...state.items],
+                items: {...state.items},
                 loading: true
             }
     }

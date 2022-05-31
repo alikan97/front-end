@@ -1,21 +1,21 @@
 import axios, { AxiosInstance } from "axios";
 import { createItem } from "../types/requests/item-request-dto";
-import item from "../types/responses/item-dto";
+import item, {itemsResponse} from "../types/responses/item-dto";
 
 
 export namespace itemsApi {
     const baseUrl:string = "https://localhost:5001";
     const axiosInstance: AxiosInstance = axios.create({baseURL: baseUrl, headers: {"Content-Type": "application/json"}});
 
-    export async function getitems(): Promise<item[]> {
+    export async function getitems(skip: number, take: number): Promise<itemsResponse> {
         return new Promise((resolve,reject) => {
-            axiosInstance.get('/items').then((response) => {
+            axiosInstance.get('/items', { params: { skip: skip, take: take} }).then((response) => {
                 resolve(response.data);
             }).catch((err) => reject(err));
         });
     }
 
-    export async function getItemByName(name: string): Promise<item> {
+    export async function getItemByName(name: string): Promise<item[]> {
         return new Promise((resolve, reject) => {
             axiosInstance.get(`items/${name}`).then((response) => {
                 resolve(response.data);

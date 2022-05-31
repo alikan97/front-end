@@ -1,11 +1,15 @@
+import { PageableResults } from "../types/filters";
 import item from "../types/responses/item-dto";
 
 export interface IDefaultState {
     loading: boolean,
-    items: item[]
+    items: PageableResults<item>
 }
 
 export const initialState: IDefaultState = {
     loading: false,
-    items: []
+    items: {
+        itemCount: 0,
+        results: []
+    }
 };
