@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -6,14 +6,20 @@ import reportWebVitals from './reportWebVitals';
 import { store } from "./stores/index";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from 'react-router-dom';
+import Spinner from './views/components/spinner';
+import { AuthProvider } from './hooks/use-auth';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <Router>
-        <App />
-      </Router>
-    </Provider>
+    <AuthProvider>
+      <Suspense fallback={<Spinner />}>
+        <Provider store={store}>
+          <Router>
+            <App />
+          </Router>
+        </Provider>
+      </Suspense>
+    </AuthProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
