@@ -16,7 +16,6 @@ export const SortComponent:React.FC= () => {
     
     const handle = (option: ISortOptions) => {
         option.current = true;
-        console.log(option);
     }
 
     return (

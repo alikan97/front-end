@@ -1,4 +1,20 @@
+import { useEffect, useState } from "react";
+import { useEntitySearch } from "../../../hooks/use-search";
+
 const SearchBox = () => {
+  const [searchText, setSearchText] = useState({ value: '' });
+  const search = useEntitySearch();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText({ value: e.target.value});
+  }
+
+  useEffect(() => {
+    if (searchText.value.length > 3) {
+      search.setSearchText({...search.searchText, filter: searchText});
+    }
+  }, [searchText]);
+
   return (
     <>
       <label
@@ -11,6 +27,8 @@ const SearchBox = () => {
         className="border-gray-200 rounded-md focus:border-indigo-500 block w-full py-3 px-4 mb-3 leading-tight focus:bg-white"
         id="searchText"
         type="text"
+        value={searchText.value}
+        onChange={(e) => handleChange(e)}
         placeholder="Keyword"
       />
     </>

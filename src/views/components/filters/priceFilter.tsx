@@ -21,11 +21,11 @@ const PriceFilter = () => {
   }, [priceFilter]);
 
   const handleCurrency = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPriceFilter({name: "price-filter", filter: { ...priceFilter.filter, optionalParams: { currency: e.target.value as Currency} }});
+    setPriceFilter({ name: "price-filter", filter: { ...priceFilter.filter, optionalParams: { currency: e.target.value as Currency } } });
   };
 
   const handlePrice = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPriceFilter({name: "price-filter", filter: { ...priceFilter.filter, value: e.target.value }});
+    setPriceFilter({ name: "price-filter", filter: { ...priceFilter.filter, value: e.target.value } });
   };
 
   return (
@@ -41,7 +41,7 @@ const PriceFilter = () => {
           <span className="text-gray-900 sm:text-sm">$</span>
         </div>
         <input
-          type="number"
+          type="text"
           name="price"
           id="price"
           value={priceFilter.filter.value}
@@ -71,3 +71,4 @@ const PriceFilter = () => {
 };
 
 export default PriceFilter;
+
