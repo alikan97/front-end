@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState, NotAuthenticatedState, AuthenticatedState } from "../types/auth";
+import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState } from "../types/auth";
 import { AccessToken, AccessTokenPayload, AuthResponse, BaseTokenProviderOptions } from "../types/token";
 
 export class ClientTokenProvider {
@@ -98,7 +98,7 @@ export class ClientTokenProvider {
                             error: 'forbidden',
                             errorDescription: error.response.statusText,
                         },
-                        status: AuthStatus.AUTHENTICATION_FAILED,
+                        status: AuthStatus.AUTHENTICATION_FAILED, // Change to insufficient roles
                     });
                     return;
             }

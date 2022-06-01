@@ -3,22 +3,16 @@ import CategoryFilter from "./categoryFilter";
 import PriceFilter from "./priceFilter";
 import SearchBox from "./searchBox";
 import SortComponent from "./sort";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux-hooks";
-import { getAllItemsAction } from "../../../stores/actions/item-actions";
 import { PageableResults, pagination } from "../../../types/filters";
 import item from "../../../types/responses/item-dto";
 import ResultsField from "../results";
 import Pagination from "../pagination";
+import { itemsApi } from "../../../api/itemsApi";
 
-const SidebarFilter: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const items = useAppSelector((state) => state.item);
-
-  const findItem = (text: string, filters: Record<string, unknown>, pagination: pagination): Promise<PageableResults<item>> => {
-    dispatch(getAllItemsAction(pagination.skip, pagination.limit));
-    return new Promise((resolve, reject) => {
-      resolve({ itemCount: items.items.itemCount, results: items.items.results });
-    });
+const SidebarFilter: React.FC = () => {  
+  const findItem = async (_text: string, _filters: Record<string, unknown>, pagination: pagination): Promise<PageableResults<item>> => {
+    const result = await itemsApi.getitems(pagination.skip, pagination.limit);
+    return {itemCount: result.itemsCount, results: result.data};
   };
 
   return (

@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "@reduxjs/toolkit";
 import itemReducer from "./reducers/itemReducer";
 
+// Not being used anymore
 const rootReducer = combineReducers({
     item: itemReducer
 });

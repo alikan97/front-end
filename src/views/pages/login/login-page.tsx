@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/use-auth";
 import { AuthStatus } from "../../../types/auth";
-import Alert, { ThemeTypes } from "../../components/filters/alerts";
+import Alert, { ThemeTypes } from "../../components/alerts";
 import Spinner from "../../components/spinner";
 
 const LoginPage: React.FC = () => {
@@ -16,6 +16,12 @@ const LoginPage: React.FC = () => {
         e.preventDefault();
         await auth.signIn({ Emai: email, Password: password });
     }
+
+    useEffect(() => {
+        if (auth.state?.status === AuthStatus.AUTHENTICATED) {
+            setTimeout(() => navigate('/'), 1500);
+        }
+    }, [auth.state]);
 
     return (
         <>

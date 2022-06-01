@@ -10,7 +10,7 @@ const Themes:AuthThemes = {
         backgroundColor: 'bg-green-200',
         iconColor: 'text-green-500', 
         title: 'Success Login',
-        description: "Too Good"
+        description: "Redirecting you to homepage..."
     },
     Warning: {
         backgroundColor: 'bg-yellow-200',
@@ -59,7 +59,6 @@ const Alert = ({theme}: IProps) => {
 
 
 export default Alert;
-
 
 type AuthThemes = {
     [key in ThemeTypes]: genericTheme

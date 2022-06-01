@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../hooks/redux-hooks";
+import { useEntitySearch } from "../../hooks/use-search";
 import { PageableResults } from "../../types/filters";
 import item from "../../types/responses/item-dto";
 import Spinner from "./spinner";
 
 const ResultsField: React.FC = () => {
     const [result, setResult] = useState<PageableResults<item>>({ itemCount: 0, results: [] });
-    const item = useAppSelector(state => state.item);
+    const search = useEntitySearch();
 
     useEffect(() => {
-        setResult(item.items);
-    }, [item])
+        search.searchResults && setResult(search.searchResults as PageableResults<item>);
+    }, [search.searchResults])
 
-    if (item.loading) return <Spinner />;
+    if (search.isLoading) return <Spinner />;
 
     return (
         <>

@@ -33,7 +33,7 @@ export const AuthProvider:FC = ({ children }) => {
         }
     }, []);
 
-    const signIn = async (userCredentials: AuthRequest): Promise<void>=> {
+    const signIn = async (userCredentials: AuthRequest) => {
         setLoading(true);
         const auth = await provider?.initialLogin(userCredentials);
         setState(auth as AuthenticationState);

@@ -94,7 +94,6 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
         } catch (e) {
             setError(e as Error);
         }
-
         setIsLoading(false);
     }
 

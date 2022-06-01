@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useEntitySearch } from "../../hooks/use-search";
 
 interface IProps {
@@ -5,8 +6,14 @@ interface IProps {
 }
 
 const Pagination = ({itemsPerPage}: IProps) => {
+    const [pages, setPages] = useState<number>(0);
     const search = useEntitySearch();
-    const pages = Math.floor((search.searchResults?.itemCount ?? 0)/itemsPerPage);
+
+    useEffect(() => {
+        if (search.searchResults) {
+            setPages(Math.floor((search.searchResults.itemCount)/itemsPerPage));
+        }
+    }, [search.searchResults]);
 
     return (
         <div className="flex justify-center">
