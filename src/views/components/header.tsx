@@ -7,6 +7,12 @@ import "./header.css"
 
 const Header: React.FC = () => {
     const auth = useAuth();
+
+    const handleLogout = async () => {
+        await auth.signOut();
+        window.location.reload();
+    }
+
     return (
         <header className='header'>
             <ul className='header-list'>
@@ -25,7 +31,7 @@ const Header: React.FC = () => {
                     </li>
                     {auth.state?.status === AuthStatus.AUTHENTICATED ?
                         <li className='header-list-item'>
-                            <Link style={staticLinkStyles} onClick={async() => await auth.signOut()} to="/"> Logout </Link>
+                            <Link style={staticLinkStyles} onClick={handleLogout} to="/"> Logout </Link>
                         </li> :
                         <li className='header-list-item'>
                             <Link style={staticLinkStyles} to="/login"> Login </Link>

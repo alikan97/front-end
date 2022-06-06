@@ -8,11 +8,19 @@ import item from "../../../types/responses/item-dto";
 import ResultsField from "../results";
 import Pagination from "../pagination";
 import { itemsApi } from "../../../api/itemsApi";
+import { useAuth } from "../../../hooks/use-auth";
+import { AuthStatus } from "../../../types/auth";
+import { itemsFakeData } from "../../../constants/stubData";
 
-const SidebarFilter: React.FC = () => {  
-  const findItem = async (_text: string, _filters: Record<string, unknown>, pagination: pagination): Promise<PageableResults<item>> => {
-    const result = await itemsApi.getitems(pagination.skip, pagination.limit);
-    return {itemCount: result.itemsCount, results: result.data};
+const SidebarFilter: React.FC = () => {
+  const {state} = useAuth();
+
+  const findItem = async (text: string, _filters: Record<string, unknown>, pagination: pagination): Promise<PageableResults<item>>=> {
+    if (state?.status === AuthStatus.AUTHENTICATED) {
+      const result = await itemsApi.getitems(state?.axios, pagination.skip, pagination.limit);
+      return { itemCount: result?.itemsCount, results: result?.data};
+    }
+    return Promise.resolve({itemCount: itemsFakeData.length, results: itemsFakeData});
   };
 
   return (

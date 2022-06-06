@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState } from "../types/auth";
 import { AccessToken, AccessTokenPayload, AuthResponse, BaseTokenProviderOptions } from "../types/token";
 
@@ -12,7 +12,8 @@ export class ClientTokenProvider {
     }
 
     public privateAxios(axiosOptions?: AxiosOptions): AxiosInstance {
-        const customAxios = axios.create(axiosOptions?.config);
+        const authHeader = { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this._accessToken?.raw}`} };
+        const customAxios = axios.create(authHeader);
 
         customAxios.interceptors.request.use(async (options) => {
             await this.refreshAccessToken(axiosOptions?.issuer);
@@ -35,7 +36,7 @@ export class ClientTokenProvider {
     public async initialLogin(userCredentials: AuthRequest): Promise<AuthenticationState> {
         const response: Promise<AuthenticationState> = axios.post<AuthResponse>(`${this.authBaseUrl}/login`,
             { Email: userCredentials.Emai, Password: userCredentials.Password },
-            { headers: { "Content-Type": "application/json" } }).then((res) => {
+            { headers: { "Content-Type": "application/json"} }).then((res) => {
                 const accessToken = this._options.decodeToken(res.data.token.token);
                 if (!accessToken) return ({ status: AuthStatus.NOT_AUTHENTICATED, error: Error('No access token'), loading: false }) as AuthenticationState;
 
@@ -67,7 +68,6 @@ export class ClientTokenProvider {
                     }
                 };
             });
-
             return response;
     }
 

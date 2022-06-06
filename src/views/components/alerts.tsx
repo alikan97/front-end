@@ -26,6 +26,18 @@ const Themes:AuthThemes = {
     }
 };
 
+type AuthThemes = {
+    [key in ThemeTypes]: genericTheme
+}
+
+interface genericTheme {
+    backgroundColor: string;
+    iconColor: string;
+    title: string;
+    description?: string;
+    [key: string]: any | undefined;
+}
+
 interface IProps {
     theme: ThemeTypes
 }
@@ -59,15 +71,3 @@ const Alert = ({theme}: IProps) => {
 
 
 export default Alert;
-
-type AuthThemes = {
-    [key in ThemeTypes]: genericTheme
-}
-
-interface genericTheme {
-    backgroundColor: string;
-    iconColor: string;
-    title: string;
-    description?: string;
-    [key: string]: any | undefined;
-}

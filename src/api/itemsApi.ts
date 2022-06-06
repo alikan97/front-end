@@ -1,35 +1,35 @@
-import axios, { AxiosInstance } from "axios";
+import { AxiosInstance } from "axios";
 import { createItem } from "../types/requests/item-request-dto";
 import item, {itemsResponse} from "../types/responses/item-dto";
 
 
 export namespace itemsApi {
-    const baseUrl:string = "https://localhost:5001";
-    const axiosInstance: AxiosInstance = axios.create({baseURL: baseUrl, headers: {"Content-Type": "application/json"}});
+    const itemsBaseUrl:string = "https://localhost:5001";
 
-    export async function getitems(skip: number, take: number): Promise<itemsResponse> {
+    export async function getitems(privateAxiosInstance: AxiosInstance, skip: number, take: number): Promise<itemsResponse> {
+        console.log(privateAxiosInstance.head);
         return new Promise((resolve,reject) => {
-            axiosInstance.get('/items', { params: { skip: skip, take: take} }).then((response) => {
+            privateAxiosInstance.get(`${itemsBaseUrl}/items`,{ params: { skip: skip, take: take} }).then((response) => {
                 resolve(response.data);
             }).catch((err) => reject(err));
         });
     }
 
-    export async function getItemByName(name: string): Promise<item[]> {
+    export async function getItemByName(privateAxiosInstance: AxiosInstance, name: string): Promise<item[]> {
         return new Promise((resolve, reject) => {
-            axiosInstance.get(`items/${name}`).then((response) => {
+            privateAxiosInstance.get(`${itemsBaseUrl}/items/${name}`).then((response) => {
                 resolve(response.data);
             }).catch((err) => reject(err));
         });
     }
 
-    export async function createItem(newItem: createItem): Promise<void> {
+    export async function createItem(privateAxiosInstance: AxiosInstance, newItem: createItem): Promise<void> {
         return new Promise((resolve,reject) => {
-            axiosInstance.post('/items', newItem).then((response) => {
+            privateAxiosInstance.post(`${itemsBaseUrl}/items`, newItem).then((response) => {
                 if (response.status === 201) {
                     resolve();
                 }
-            }).catch((err) => console.log(err));
+            }).catch((err) => reject(err));
         });
     }
 }

@@ -1,3 +1,4 @@
+import axios, { Axios, AxiosInstance } from "axios";
 import { Dispatch } from "react";
 import { itemsApi } from "../../api/itemsApi";
 import { createItem } from "../../types/requests/item-request-dto";
@@ -5,10 +6,11 @@ import { itemsDispatchTypes, ITEMS_CREATED, ITEMS_FAILED, ITEMS_LOADING, ITEMS_S
 
 export const getAllItemsAction = (skip: number, take: number) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
+        const ex: AxiosInstance = axios.create();
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.getitems(skip, take).then((response => {
+        itemsApi.getitems(ex, skip, take).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
                 payload: {
@@ -26,10 +28,11 @@ export const getAllItemsAction = (skip: number, take: number) => async (dispatch
 
 export const createNewItem = (newItem: createItem) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
+        const ex: AxiosInstance = axios.create();
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.createItem(newItem).then((_ => {
+        itemsApi.createItem(ex, newItem).then((_ => {
             dispatch({
                 type: ITEMS_CREATED,
             });
@@ -43,10 +46,11 @@ export const createNewItem = (newItem: createItem) => async (dispatch: Dispatch<
 
 export const getItemByName = (name:string) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
+        const ex: AxiosInstance = axios.create();
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.getItemByName(name).then((response => {
+        itemsApi.getItemByName(ex, name).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
                 payload: {
