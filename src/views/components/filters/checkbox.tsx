@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
+import { staticCategories } from "../../../constants/globalConstants";
 import { useEntitySearch } from "../../../hooks/use-search";
 
-interface IProps {
-  labels: string[];
-}
-
-const Checkbox = ({ labels }: IProps) => {
+const Checkbox = () => {
   const [categories, setCategories] = useState<Array<string>>([]);
   const search = useEntitySearch();
 
@@ -26,7 +23,7 @@ const Checkbox = ({ labels }: IProps) => {
 
   return (
     <div className="block justify-center">
-      {labels.map((label, idx) => {
+      {staticCategories.map((label, idx) => {
         return (
           <div className="form-check" key={idx}>
             <input

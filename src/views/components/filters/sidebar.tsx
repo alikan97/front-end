@@ -3,7 +3,7 @@ import CategoryFilter from "./categoryFilter";
 import PriceFilter from "./priceFilter";
 import SearchBox from "./searchBox";
 import SortComponent from "./sort";
-import { PageableResults, pagination } from "../../../types/filters";
+import { FilterRequest, PageableResults, pagination } from "../../../types/filters";
 import item from "../../../types/responses/item-dto";
 import ResultsField from "../results";
 import Pagination from "../pagination";
@@ -15,9 +15,9 @@ import { itemsFakeData } from "../../../constants/stubData";
 const SidebarFilter: React.FC = () => {
   const {state} = useAuth();
 
-  const findItem = async (text: string, _filters: Record<string, unknown>, pagination: pagination): Promise<PageableResults<item>>=> {
+  const findItem = async (text: string, filters: FilterRequest, pagination: pagination): Promise<PageableResults<item>>=> {
     if (state?.status === AuthStatus.AUTHENTICATED) {
-      const result = await itemsApi.getitems(state?.axios, pagination.skip, pagination.limit);
+      const result = await itemsApi.getitems(state?.axios, pagination.skip, pagination.limit, text, filters);
       return { itemCount: result?.itemsCount, results: result?.data};
     }
     return Promise.resolve({itemCount: itemsFakeData.length, results: itemsFakeData});

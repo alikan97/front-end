@@ -3,7 +3,6 @@ import Checkbox from "./checkbox";
 
 const CategoryFilter = () => {
   const [active, setActive] = useState(false);
-  const staticCategories = ['first', 'second', 'thing'];
 
   return (
     <div className="accordion-item bg-white border-b border-gray-200">
@@ -21,7 +20,7 @@ const CategoryFilter = () => {
         className={`accordion-collapse ${active ? "" : "hidden"}`}
       >
         <div className={`accordion-body py-4`}>
-          <Checkbox labels={staticCategories} />
+          <Checkbox />
         </div>
       </div>
     </div>

@@ -6,3 +6,5 @@ export const DEFAULT_SEARCH_OPTIONS: SearchOptionsDefined = {
   cacheTtlMins: 30,
   savedFilterStorageKey: "savedFilter",
 };
+
+export const staticCategories = ['first', 'second', 'thing', 'Random'];

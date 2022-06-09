@@ -21,7 +21,7 @@ export interface SearchProviderProps<T> {
     children: ReactNode,
     entityName: string,
     itemsPerPage: number,
-    findItems: (text: string, filters: Record<string, unknown>, pagination: pagination) => Promise<PageableResults<T>>,
+    findItems: (text: string, filters: FilterRequest, pagination: pagination) => Promise<PageableResults<T>>,
     searchOptions?: SearchOptionsDefined
 }
 export interface SearchCacheItem<T> {
@@ -44,6 +44,11 @@ export type AppliedFilterType = genericFilter<string | number | string[]>;
 export interface AppliedFilter<T extends AppliedFilterType> {
     name: string,
     filter: T
+}
+
+export interface FilterRequest {
+    Categories: Array<string | null>,
+    price: number | null
 }
 
 export interface SearchContextProps<T> {

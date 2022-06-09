@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance } from "axios";
 import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState } from "../types/auth";
 import { AccessToken, AccessTokenPayload, AuthResponse, BaseTokenProviderOptions } from "../types/token";
 
@@ -12,10 +12,11 @@ export class ClientTokenProvider {
     }
 
     public privateAxios(axiosOptions?: AxiosOptions): AxiosInstance {
-        const authHeader = { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this._accessToken?.raw}`} };
+        const authHeader = { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this._accessToken?.raw}`, 'Cache-Control': 'no-cache'} };
         const customAxios = axios.create(authHeader);
 
         customAxios.interceptors.request.use(async (options) => {
+            console.log(options);
             await this.refreshAccessToken(axiosOptions?.issuer);
             if (!this._accessToken) console.warn('Refresh failed');
 
