@@ -1,16 +1,21 @@
 import axios, { Axios, AxiosInstance } from "axios";
 import { Dispatch } from "react";
 import { itemsApi } from "../../api/itemsApi";
+import { FilterRequest } from "../../types/filters";
 import { createItem } from "../../types/requests/item-request-dto";
 import { itemsDispatchTypes, ITEMS_CREATED, ITEMS_FAILED, ITEMS_LOADING, ITEMS_SUCESS } from "./action-types";
 
 export const getAllItemsAction = (skip: number, take: number) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
         const ex: AxiosInstance = axios.create();
+        const filtRe: FilterRequest = {
+            Categories: ["sdc"],
+            price: 32
+        }
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.getitems(ex, skip, take).then((response => {
+        itemsApi.getitems(ex, skip, take, 'sdf',filtRe).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
                 payload: {

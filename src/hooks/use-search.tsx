@@ -3,8 +3,8 @@ import { debounce, isUndefined, omitBy, values } from "lodash";
 import moment from "moment";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Currency } from "../constants/enums";
-import { DEFAULT_SEARCH_OPTIONS } from "../constants/globalConstants";
-import { AppliedFilterType, PageableResults, SearchCache, SearchCacheItem, SearchContextProps, SearchOptionsDefined, AppliedFilter } from "../types/filters";
+import { DEFAULT_SEARCH_OPTIONS, staticCategories } from "../constants/globalConstants";
+import { AppliedFilterType, PageableResults, SearchCache, SearchCacheItem, SearchContextProps, SearchOptionsDefined, AppliedFilter, FilterRequest } from "../types/filters";
 import { SearchProviderProps } from "../types/filters";
 
 export const SearchContext = createContext<SearchContextProps<any>>({
@@ -35,7 +35,6 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
     const [searchResults, setSearchResults] = useState<PageableResults<T>>();
     const [currentPage, setCurrentPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [searchCache, setSearchCache] = useState<SearchCache<PageableResults<T>>>({});
     const [error, setError] = useState<Error>();
 
     const clear = (): void => {
@@ -45,52 +44,21 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
         setError(undefined);
     };
 
-    const setCacheData = (cache: SearchCache<PageableResults<T>>, key1: string, key2: string, data: PageableResults<T>): void => {
-        setSearchCache({
-            ...cache,
-            [key1]: {
-                ...cache[key1],
-                [key2]: {
-                    data,
-                    expiry: moment().add(options.cacheTtlMins ?? 30, 'm').toDate(),
-                },
-            },
-        });
-    };
-
-    const isValidCachedResult = (cachedResult: SearchCacheItem<PageableResults<T>> | undefined): boolean => {
-        if (!cachedResult) return false;
-        return moment().diff(cachedResult.expiry, 'm') < 0;
-    }
-
-    const getCacheData = (cache: SearchCache<PageableResults<T>>, key1: string, key2: string): PageableResults<T> | undefined => {
-        const cacheItem = cache[key1]?.[key2];
-        if (!isValidCachedResult(cacheItem)) return;
-
-        return cacheItem.data;
-    }
-
-    const invalidateCache = (): void => {
-        setSearchCache({});
-    }
-
-    const retrieveItems = async (cache: SearchCache<PageableResults<T>>, text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]): Promise<void> => {
+    const retrieveItems = async (text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]): Promise<void> => {
         setError(undefined);
-
         try {
-            const mongoFilters = Object.entries(localFilters).reduce((acc, [_filterName, appliedFilters]) => {
-                acc.$and.push({ [appliedFilters.name]: appliedFilters.filter.value });
-                return acc;
-            }, { '$and': [] } as { '$and': Record<string, unknown>[] });
+            const filters = {
+                Categories: Categories.filter.value as string[],
+                price: price.filter.value as number,
+            }
 
-            const pageableResults = await findItems(text, mongoFilters,
+            const pageableResults = await findItems(text, filters,
                 {
                     skip: page * itemsPerPage,
                     limit: itemsPerPage
                 });
 
             setSearchResults(pageableResults);
-            setCacheData(cache, text, page.toString(), pageableResults);
         } catch (e) {
             setError(e as Error);
         }
@@ -102,8 +70,8 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
     }
 
     const debouncedFindItems = useCallback(
-        debounce(async (cache: SearchCache<PageableResults<T>>, text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]) => {
-            await retrieveItems(cache, text, page, localFilters);
+        debounce(async (text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]) => {
+            await retrieveItems(text, page, localFilters);
         }, options.debounceWaitMilliSecs), []);
 
     useEffect(() => {
@@ -114,9 +82,8 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
             price
         ];
 
-        invalidateCache();
         setCurrentPage(0);
-        void debouncedFindItems(searchCache, searchText.filter.value as string, 0, combinedFilter);
+        void debouncedFindItems(searchText.filter.value as string, 0, combinedFilter);
     }, [price, Categories]);
 
     useEffect(() => {
@@ -132,7 +99,7 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
             price
         ];
         setCurrentPage(0);
-        void debouncedFindItems(searchCache, searchText.filter.value as string, 0, combinedFilter);
+        void debouncedFindItems(searchText.filter.value as string, 0, combinedFilter);
     }, [searchText]);
 
     useEffect(() => {
@@ -143,7 +110,7 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
             Categories,
             price
         ];
-        void retrieveItems(searchCache, searchText.filter.value as string, currentPage, combinedFilter);
+        void retrieveItems(searchText.filter.value as string, currentPage, combinedFilter);
     }, [currentPage]);
 
     return (
