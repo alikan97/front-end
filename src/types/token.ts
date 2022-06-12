@@ -25,6 +25,7 @@ export interface AuthResponse {
 
 export interface AccessToken {
     expires: number;
+    refreshToken: string;
     payload: AccessTokenPayload;
     raw: string;
 }

@@ -16,13 +16,14 @@ export class ClientTokenProvider {
         const customAxios = axios.create(authHeader);
 
         customAxios.interceptors.request.use(async (options) => {
-            console.log(options);
-            await this.refreshAccessToken(axiosOptions?.issuer);
-            if (!this._accessToken) console.warn('Refresh failed');
+            if (this._accessToken && this.isExpired(this._accessToken?.payload.exp, Date.now())) {
+                await this.refreshAccessToken();
+                if (!this._accessToken) console.warn('Refresh failed');
 
-            if (options.headers && !options.headers['Authorization']) options.headers['Authorization'] = `Bearer ${this._accessToken?.raw}`;
-
-            return options;
+                if (options.headers && !options.headers['Authorization']) options.headers['Authorization'] = `Bearer ${this._accessToken?.raw}`;
+    
+                return options;
+            }
         });
 
         customAxios.interceptors.response.use(response => response, async (error) => {
@@ -32,7 +33,28 @@ export class ClientTokenProvider {
         return customAxios;
     }
 
-    private async refreshAccessToken(issuer?: string): Promise<void> { }
+    private async refreshAccessToken(): Promise<void> {
+        if (!this._accessToken?.refreshToken) {
+            this._options.logger?.error("No refresh token found");
+            return;
+        }
+        try {
+            const response = await axios.post<AuthResponse>(`${this.authBaseUrl}/api/auth/refresh`, { AccessToken: this._accessToken.raw, RefreshToken: this._accessToken.refreshToken });
+            if (response.data.statusCode === 200) {
+                const accessToken = this._options.decodeToken(response.data.token.token);
+                if (!accessToken) console.error('Could not decode new JWT token');
+    
+                this._accessToken = {
+                    expires: accessToken.expires,
+                    payload: accessToken.payload,
+                    raw: accessToken.raw,
+                    refreshToken: response.data.token.refreshToken,
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     public async initialLogin(userCredentials: AuthRequest): Promise<AuthenticationState> {
         const response: Promise<AuthenticationState> = axios.post<AuthResponse>(`${this.authBaseUrl}/login`,
@@ -43,9 +65,11 @@ export class ClientTokenProvider {
 
                 this._accessToken = {
                     expires: accessToken.expires,
-                    payload: this._options.decodeToken(res.data.token.token).payload,
+                    refreshToken: res.data.token.refreshToken,
+                    payload: accessToken.payload,
                     raw: accessToken.raw
                 }
+
                 return {
                     timestamp: Date.now(),
                     axios: this.privateAxios(),
@@ -110,11 +134,12 @@ export class ClientTokenProvider {
             error: error
         });
     }
-    public async logOut() {
-
+    public logOut() {
+        this._accessToken = undefined;
     }
-    public cleanUp() {
 
+    private isExpired (time1: number, time2: number) : boolean {
+        return time1 > time2;
     }
 }
 
