@@ -24,7 +24,7 @@ const Header: React.FC = () => {
                         <Link style={staticLinkStyles} to="/"> All Items </Link>
                     </li>
                     <li className='header-list-item'>
-                        <Link style={staticLinkStyles} to="/request-item"> Request Item </Link>
+                        <Link style={staticLinkStyles} to="/create-item"> Create Item </Link>
                     </li>
                     <li className='header-list-item'>
                         <Link style={staticLinkStyles} to="/my-items"> My Items </Link>

@@ -25,7 +25,7 @@ const Pagination = ({itemsPerPage}: IProps) => {
                         onClick={() => {search.setCurrentPage(search.currentPage > 0 ? search.currentPage-1 : 0)}}>
                         <span aria-hidden="true">&laquo;</span>
                     </p></li>
-                    {Array(pages+1).fill(0).map((_, idx: number) => {
+                    {Array(pages).fill(0).map((_, idx: number) => {
                         return (
                             <li className="page-item" key={idx}>
                                 <p className="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 rounded text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none cursor-pointer"
@@ -39,7 +39,7 @@ const Pagination = ({itemsPerPage}: IProps) => {
                     <li className="page-item">
                         <p className="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 rounded text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none cursor-pointer"
                         aria-label="Next"
-                        onClick={() => {search.setCurrentPage(search.currentPage < pages ? search.currentPage+1: pages)}}
+                        onClick={() => {search.setCurrentPage((search.currentPage+1) < pages ? search.currentPage+1 : pages-1)}}
                         >
                         <span aria-hidden="true">&raquo;</span>
                     </p></li>

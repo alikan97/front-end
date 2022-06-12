@@ -1,8 +1,8 @@
-import axios, { Axios, AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
 import { Dispatch } from "react";
 import { itemsApi } from "../../api/itemsApi";
 import { FilterRequest } from "../../types/filters";
-import { createItem } from "../../types/requests/item-request-dto";
+import { createItemState } from "../../types/requests/create-item-dto";
 import { itemsDispatchTypes, ITEMS_CREATED, ITEMS_FAILED, ITEMS_LOADING, ITEMS_SUCESS } from "./action-types";
 
 export const getAllItemsAction = (skip: number, take: number) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
@@ -31,7 +31,7 @@ export const getAllItemsAction = (skip: number, take: number) => async (dispatch
     }
 }
 
-export const createNewItem = (newItem: createItem) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
+export const createNewItem = (newItem: createItemState) => async (dispatch: Dispatch<itemsDispatchTypes>) => {
     try {
         const ex: AxiosInstance = axios.create();
         dispatch({
@@ -55,12 +55,12 @@ export const getItemByName = (name:string) => async (dispatch: Dispatch<itemsDis
         dispatch({
             type: ITEMS_LOADING,
         });
-        itemsApi.getItemByName(ex, name).then((response => {
+        itemsApi.getItemById(ex, name).then((response => {
             dispatch({
                 type: ITEMS_SUCESS,
                 payload: {
-                    itemCount: response.length,
-                    results: response
+                    itemCount: 1,
+                    results: [response]
                 }
             });
         }));

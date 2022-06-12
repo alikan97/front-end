@@ -4,15 +4,13 @@ export interface pagination {
     limit: number,
     skip: number,
 }
-export interface SearchSettings {
-    itemsPerPage: number
-}
 export interface PageableResults<T> {
     itemCount: number;      // all items
     results: T[];
 }
 export interface SearchOptionsDefined {
     minCharactersToSearch: number;
+    itemsPerPage: number,
     debounceWaitMilliSecs?: number;
     cacheTtlMins: number;
     savedFilterStorageKey?: string;
@@ -20,7 +18,6 @@ export interface SearchOptionsDefined {
 export interface SearchProviderProps<T> {
     children: ReactNode,
     entityName: string,
-    itemsPerPage: number,
     findItems: (text: string, filters: FilterRequest, pagination: pagination) => Promise<PageableResults<T>>,
     searchOptions?: SearchOptionsDefined
 }

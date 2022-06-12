@@ -8,7 +8,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<AllItemsPage/>}/>
-        <Route path="/request-item" element={<RequestItemPage/>}/>
+        <Route path="/create-item" element={<RequestItemPage/>}/>
         <Route path='/my-items' element={<MyItemsPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path='/register' element={<RegisterPage/>}/>

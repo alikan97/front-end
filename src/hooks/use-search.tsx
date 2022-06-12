@@ -22,7 +22,7 @@ export const SearchContext = createContext<SearchContextProps<any>>({
     error: undefined,
 });
 
-export function SearchProvider<T>({ children, entityName, findItems, itemsPerPage, searchOptions }: SearchProviderProps<T>): JSX.Element {
+export function SearchProvider<T>({ children, entityName, findItems, searchOptions }: SearchProviderProps<T>): JSX.Element {
     const options: SearchOptionsDefined = {
         ...DEFAULT_SEARCH_OPTIONS,
         savedFilterStorageKey: `acc-id-${entityName}`,
@@ -44,18 +44,18 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
         setError(undefined);
     };
 
-    const retrieveItems = async (text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]): Promise<void> => {
+    const retrieveItems = async (text: string, page: number, localFilters: Record<string, AppliedFilter<AppliedFilterType>>): Promise<void> => {
         setError(undefined);
         try {
             const filters = {
-                Categories: Categories.filter.value as string[],
-                price: price.filter.value as number,
+                Categories: localFilters.CategoryFilter.filter.value as string[],
+                price: localFilters.priceFilter.filter.value as number,
             }
 
             const pageableResults = await findItems(text, filters,
                 {
-                    skip: page * itemsPerPage,
-                    limit: itemsPerPage
+                    skip: page * options.itemsPerPage,
+                    limit: options.itemsPerPage
                 });
 
             setSearchResults(pageableResults);
@@ -66,21 +66,21 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
     }
 
     const isTextSearchable = (text: string): boolean => {
+        if (text.length === 0) return true;
         return text.length >= options.minCharactersToSearch;
     }
 
     const debouncedFindItems = useCallback(
-        debounce(async (text: string, page: number, localFilters: AppliedFilter<AppliedFilterType>[]) => {
+        debounce(async (text: string, page: number, localFilters: Record<string, AppliedFilter<AppliedFilterType>>) => {
             await retrieveItems(text, page, localFilters);
         }, options.debounceWaitMilliSecs), []);
 
     useEffect(() => {
         setIsLoading(true);
-        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
-            searchText,
-            Categories,
-            price
-        ];
+        const combinedFilter: Record<string, AppliedFilter<AppliedFilterType>> = {
+            CategoryFilter: Categories,
+            priceFilter: price
+        };
 
         setCurrentPage(0);
         void debouncedFindItems(searchText.filter.value as string, 0, combinedFilter);
@@ -93,11 +93,11 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
             return;
         }
         setIsLoading(true);
-        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
-            searchText,
-            Categories,
-            price
-        ];
+        const combinedFilter: Record<string, AppliedFilter<AppliedFilterType>> = {
+            CategoryFilter: Categories,
+            priceFilter: price
+        };
+    
         setCurrentPage(0);
         void debouncedFindItems(searchText.filter.value as string, 0, combinedFilter);
     }, [searchText]);
@@ -105,11 +105,11 @@ export function SearchProvider<T>({ children, entityName, findItems, itemsPerPag
     useEffect(() => {
         setIsLoading(true);
 
-        const combinedFilter: AppliedFilter<AppliedFilterType>[] = [
-            searchText,
-            Categories,
-            price
-        ];
+        const combinedFilter: Record<string, AppliedFilter<AppliedFilterType>> = {
+            CategoryFilter: Categories,
+            priceFilter: price
+        };
+
         void retrieveItems(searchText.filter.value as string, currentPage, combinedFilter);
     }, [currentPage]);
 

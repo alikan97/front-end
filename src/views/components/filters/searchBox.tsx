@@ -6,13 +6,12 @@ const SearchBox = () => {
   const search = useEntitySearch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText({ value: e.target.value});
+    e.preventDefault();
+    setSearchText({ value: e.target.value });
   }
 
   useEffect(() => {
-    if (searchText.value.length > 3) {
-      search.setSearchText({...search.searchText, filter: searchText});
-    }
+    search.setSearchText({ ...search.searchText, filter: searchText });
   }, [searchText]);
 
   return (

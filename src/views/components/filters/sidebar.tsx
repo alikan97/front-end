@@ -11,6 +11,7 @@ import { itemsApi } from "../../../api/itemsApi";
 import { useAuth } from "../../../hooks/use-auth";
 import { AuthStatus } from "../../../types/auth";
 import { itemsFakeData } from "../../../constants/stubData";
+import { DEFAULT_SEARCH_OPTIONS } from "../../../constants/globalConstants";
 
 const SidebarFilter: React.FC = () => {
   const {state} = useAuth();
@@ -28,8 +29,8 @@ const SidebarFilter: React.FC = () => {
       <SearchProvider<item>
         findItems={findItem}
         entityName="Test"
-        itemsPerPage={6}
         searchOptions={{
+          itemsPerPage: DEFAULT_SEARCH_OPTIONS.itemsPerPage,
           cacheTtlMins: 30,
           minCharactersToSearch: 3,
           debounceWaitMilliSecs: 250,
@@ -55,7 +56,7 @@ const SidebarFilter: React.FC = () => {
           </div>
           <ResultsField />
         </div>
-        <Pagination itemsPerPage={5}/>
+        <Pagination itemsPerPage={DEFAULT_SEARCH_OPTIONS.itemsPerPage}/>
       </SearchProvider>
     </>
   );
