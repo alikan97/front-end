@@ -28,7 +28,6 @@ export const AuthProvider:FC = ({ children }) => {
         setProvider(provider);
 
         return () => {
-            provider.cleanUp();
             setProvider(undefined);
         }
     }, []);
@@ -42,7 +41,7 @@ export const AuthProvider:FC = ({ children }) => {
 
     const signOut = async() => {
         if (!provider) throw new Error('Must be signed in');
-        await provider.logOut();
+        provider.logOut();
         setState(undefined);
     }
 

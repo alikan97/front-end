@@ -5,6 +5,7 @@ export const DEFAULT_SEARCH_OPTIONS: SearchOptionsDefined = {
   debounceWaitMilliSecs: 350,
   cacheTtlMins: 30,
   savedFilterStorageKey: "savedFilter",
+  itemsPerPage: 6,
 };
 
-export const staticCategories = ['first', 'second', 'thing', 'Random'];
+export const staticCategories = ['first', 'second', 'thing', 'Random', 'Shit'];
