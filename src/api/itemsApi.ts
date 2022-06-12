@@ -1,7 +1,8 @@
-import { AxiosInstance } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import QueryString from "qs";
 import { FilterRequest } from "../types/filters";
-import { createItem } from "../types/requests/item-request-dto";
+import { createItemState } from "../types/requests/create-item-dto";
+import { createItemResponse } from "../types/responses/create-item-response";
 import item, { itemsResponse } from "../types/responses/item-dto";
 
 
@@ -14,12 +15,12 @@ export namespace itemsApi {
                 params: {
                     skip: skip,
                     take: take,
-                    keyword: text,
-                    price: filter.price,
-                    categories: filter.Categories
+                    keyword: text ? text : undefined,
+                    price: filter.price ? filter.price : undefined,
+                    categories: filter.Categories.length ? filter.Categories : undefined
                 },
                 paramsSerializer: params => {
-                    return QueryString.stringify(params, { arrayFormat: 'comma', encode: false });
+                    return QueryString.stringify(params, { arrayFormat: 'repeat', encode: false });
                 }
             }).then((response) => {
                 resolve(response.data);
@@ -27,19 +28,19 @@ export namespace itemsApi {
         });
     }
 
-    export async function getItemByName(privateAxiosInstance: AxiosInstance, name: string): Promise<item[]> {
+    export async function getItemById(privateAxiosInstance: AxiosInstance, id: string): Promise<item> {
         return new Promise((resolve, reject) => {
-            privateAxiosInstance.get(`${itemsBaseUrl}/items/${name}`).then((response) => {
+            privateAxiosInstance.get(`${itemsBaseUrl}/items/${id}`).then((response) => {
                 resolve(response.data);
             }).catch((err) => reject(err));
         });
     }
 
-    export async function createItem(privateAxiosInstance: AxiosInstance, newItem: createItem): Promise<void> {
+    export async function createItem(privateAxiosInstance: AxiosInstance, newItem: createItemState): Promise<createItemResponse> {
         return new Promise((resolve, reject) => {
             privateAxiosInstance.post(`${itemsBaseUrl}/items`, newItem).then((response) => {
                 if (response.status === 201) {
-                    resolve();
+                    resolve(response.data);
                 }
             }).catch((err) => reject(err));
         });
