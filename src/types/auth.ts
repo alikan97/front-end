@@ -1,4 +1,6 @@
 import { AxiosInstance, AxiosRequestConfig } from "axios";
+import { registerRequest } from "./requests/register-user-dto";
+import { registerFailed, registerSuccess } from "./responses/registration-response";
 
 export const FORWARDED_AUTHORIZATION = 'x-forwarded-authorization';
 
@@ -12,6 +14,7 @@ export enum AuthStatus {
 export interface Auth {
   signIn: (userCredentials: AuthRequest) => Promise<void>;
   signOut: () => Promise<void>;
+  register: (request: registerRequest) => Promise<registerSuccess | registerFailed | undefined>,
   state: AuthenticationState | undefined;
   loading: boolean;
 }

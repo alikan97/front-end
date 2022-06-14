@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
     return (
         <>
             {auth.loading ? <Spinner /> :
-                <div className="flex items-center justify-center h-screen sm:px-6">
+                <div className="flex items-center justify-center h-screen sm:px-6 bg-gray-100">
                     <div className="w-full max-w-md p-4 bg-white rounded-md sm:p-6 transition duration-400">
                         {auth.state?.status === AuthStatus.AUTHENTICATED ? <Alert theme={ThemeTypes.success} /> :
                             auth.state?.status === AuthStatus.NOT_AUTHENTICATED ? <Alert theme={ThemeTypes.warn} /> :

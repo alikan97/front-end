@@ -1,5 +1,7 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState } from "../types/auth";
+import { registerRequest } from "../types/requests/register-user-dto";
+import { registerFailed, registerSuccess } from "../types/responses/registration-response";
 import { AccessToken, AccessTokenPayload, AuthResponse, BaseTokenProviderOptions } from "../types/token";
 
 export class ClientTokenProvider {
@@ -94,6 +96,23 @@ export class ClientTokenProvider {
                 };
             });
             return response;
+    }
+
+    public async register(request: registerRequest): Promise<registerSuccess | registerFailed | undefined> {
+        try {
+            const response = await axios.post(`${this.authBaseUrl}/register`, {
+                Email: request.Email,
+                FullName: request.FullName,
+                Password: request.Password,
+                Roles: request.Roles,
+            });
+            return response.data;
+        } catch(err) {
+            if (axios.isAxiosError(err)) {
+                const error = new AxiosError<registerFailed | any, any>(err.message, err.code, err.config, err.request, err.response);
+                return error.response?.data;
+            }
+        }
     }
 
     public errorHandler(error: any) {

@@ -1,11 +1,14 @@
 import { createContext, FC, useContext, useEffect, useState } from "react";
 import { Auth, AuthenticationState, AuthRequest } from "../types/auth";
+import { registerRequest } from "../types/requests/register-user-dto";
+import { registerFailed, registerSuccess } from "../types/responses/registration-response";
 import { AccessToken } from "../types/token";
 import { ClientTokenProvider, decodeToken } from "../utilities/token";
 
 export const AuthContext = createContext<Auth>({
     signIn: async() => {},
     signOut: async() => {},
+    register: async() => {return Promise.resolve(undefined)},
     state: undefined,
     loading: false,
 });
@@ -45,8 +48,14 @@ export const AuthProvider:FC = ({ children }) => {
         setState(undefined);
     }
 
+    const register = async(request: registerRequest): Promise<registerSuccess | registerFailed> => {
+        const response = await provider?.register(request);
+        if (!response) return {errors: {ErrorMsg: ["Failed to register"]}, status: 400, title: "Error"}
+        return response;
+    }
+
     return (
-        <AuthContext.Provider value={{signIn, signOut, state, loading}}>
+        <AuthContext.Provider value={{signIn, signOut, register, state, loading}}>
             {children}
         </AuthContext.Provider>
     )
