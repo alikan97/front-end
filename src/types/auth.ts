@@ -1,5 +1,7 @@
 import { AxiosInstance, AxiosRequestConfig } from "axios";
+import { addRoleRequest } from "./requests/add-role-to-user";
 import { registerRequest } from "./requests/register-user-dto";
+import { globalAuthErrorHandler } from "./responses/authentication-error";
 import { registerFailed, registerSuccess } from "./responses/registration-response";
 
 export const FORWARDED_AUTHORIZATION = 'x-forwarded-authorization';
@@ -15,6 +17,8 @@ export interface Auth {
   signIn: (userCredentials: AuthRequest) => Promise<void>;
   signOut: () => Promise<void>;
   register: (request: registerRequest) => Promise<registerSuccess | registerFailed | undefined>,
+  addRoleToUser: (req: addRoleRequest) => Promise<void>;
+  error: globalAuthErrorHandler | undefined,
   state: AuthenticationState | undefined;
   loading: boolean;
 }
@@ -32,6 +36,8 @@ export interface AuthenticatedState {
 
 export interface UserInfo {
   userId: string,
+  userName: string,
+  userEmail: string,
   accountId: string,
   hasRoleFunction: (...anyOfRfn: string[]) => boolean;
 }

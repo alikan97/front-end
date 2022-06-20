@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { itemsApi } from "../../../api/itemsApi";
 import { useAuth } from "../../../hooks/use-auth";
 import { registerFailed, registerSuccess } from "../../../types/responses/registration-response";
 import Alert, { ThemeTypes } from "../../components/alerts";
@@ -69,7 +70,7 @@ const RegisterPage: React.FC = () => {
                                         </svg>
                                     </div>
                                     <span className="ml-4">
-                                        Sign Up with Google
+                                        Sign Up with Google 
                                     </span>
                                 </button>
 

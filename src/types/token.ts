@@ -1,4 +1,5 @@
 import { AuthenticationState } from "./auth";
+import { globalAuthErrorHandler } from "./responses/authentication-error";
 
 export interface RawTokenSet {
     refreshToken: string;
@@ -34,6 +35,8 @@ export interface AccessTokenPayload {
     aud: string;
     exp: number;
     iss: string;
+    name: string;
+    email: string;
     jti: string;
     nbf: number;
     iat: number;
@@ -42,6 +45,7 @@ export interface AccessTokenPayload {
 
 export interface BaseTokenProviderOptions {
     logger?: TokenProviderLogger;
+    setError: (err: globalAuthErrorHandler) => void,
     setAuth: (authenticationState?: AuthenticationState) => void;
     decodeToken: <T extends AccessToken>(raw: string) => T;
 }

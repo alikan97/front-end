@@ -1,4 +1,4 @@
-import { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance } from "axios";
 import QueryString from "qs";
 import { FilterRequest } from "../types/filters";
 import { createItemState } from "../types/requests/create-item-dto";
