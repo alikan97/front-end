@@ -67,3 +67,12 @@ export interface AuthRequest {
   Emai: string;
   Password: string;
 }
+
+// Sync
+export interface AuthSyncMessage {
+  state: AuthStatus,
+  data: {
+    accessToken: string,
+    refreshToken: string
+  }
+}

@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { AxiosOptions, AuthStatus, AuthRequest, AuthenticationState } from "../types/auth";
+import { AuthStatus, AuthRequest, AuthenticationState, AuthSyncMessage } from "../types/auth";
 import { addRoleRequest } from "../types/requests/add-role-to-user";
 import { registerRequest } from "../types/requests/register-user-dto";
 import { registerFailed, registerSuccess } from "../types/responses/registration-response";
@@ -11,12 +11,59 @@ export class ClientTokenProvider {
     private _accessToken?: AccessToken;
     private requestInterceptor?: number;
     private responseInterceptor?: number;
-
+    private authSync: BroadcastChannel = new BroadcastChannel('authentication')
+    
+    private remoteAuthMessageHandler?: (this: BroadcastChannel, event: MessageEvent) => any;
+    
     constructor(options: BaseTokenProviderOptions) {
         this._options = options;
+        this.authSync = new BroadcastChannel('authentication');
+        this.watchRemoteTabs();
     }
 
-    public privateAxios(axiosOptions?: AxiosOptions): AxiosInstance {
+    private watchRemoteTabs() {
+        this.remoteAuthMessageHandler = (event: any):void => {
+            this.updateLocalAuth(event);
+        }
+        this.authSync.onmessage = this.remoteAuthMessageHandler;
+    }
+
+    private updateLocalAuth(event: any) {
+        console.log(event);
+        this._options.setAuth(this.getAuthState(event.data as AuthSyncMessage));
+    }
+
+    private getAuthState(event: AuthSyncMessage): AuthenticationState {
+        if (!event.data.accessToken) return ({ status: AuthStatus.NOT_AUTHENTICATED, error: Error('No access token'), loading: false }) as AuthenticationState;
+        const decodedToken = decodeToken(event.data.accessToken);
+
+        if (!decodedToken) return {
+            status: AuthStatus.AUTHENTICATION_FAILED,
+            failure: {
+                error: 'Couldnt decode token',
+                errorDescription: "Couldnt decode token"
+            }
+        };
+
+        return {
+            timestamp: Date.now(),
+            axios: this.privateAxios(),
+            loading: false,
+            status: AuthStatus.AUTHENTICATED,
+            userInfo: {
+                userName: decodedToken.payload.name,
+                userEmail: decodedToken.payload.email,
+                userId: decodedToken.payload.jti,
+                accountId: 'randmo-acc-id',
+                hasRoleFunction: (...anyOfRfn: string[]): boolean => {
+                    const granted: string[]= !Array.isArray(decodedToken.payload.roles) ? new Array(decodedToken.payload.roles) : decodedToken.payload.roles;
+                    return !!anyOfRfn.find((rfn) => granted.includes(rfn));
+                }
+            }
+        } as AuthenticationState;
+    }
+
+    public privateAxios(): AxiosInstance {
         const authHeader = { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this._accessToken?.raw}`, 'Cache-Control': 'no-cache' } };
         const customAxios = axios.create(authHeader);
 
@@ -54,6 +101,17 @@ export class ClientTokenProvider {
                     raw: accessToken.raw,
                     refreshToken: response.data.token.refreshToken,
                 }
+
+                this.authSync.postMessage(
+                    {
+                        state: AuthStatus.AUTHENTICATED,
+                        data: {
+                            accessToken: accessToken.raw,
+                            refreshToken: response.data.token.refreshToken
+                        }
+                    }
+                );
+                
             }
         } catch (err) {
             console.error(err);
@@ -73,6 +131,16 @@ export class ClientTokenProvider {
                     payload: accessToken.payload,
                     raw: accessToken.raw
                 }
+
+                this.authSync.postMessage(
+                    {
+                        state: AuthStatus.AUTHENTICATED,
+                        data: {
+                            accessToken: accessToken.raw,
+                            refreshToken: res.data.token.refreshToken
+                        }
+                    }
+                );
 
                 return {
                     timestamp: Date.now(),
@@ -154,6 +222,12 @@ export class ClientTokenProvider {
     }
 
     public logOut() {
+        this.authSync.postMessage(
+            {
+                state: AuthStatus.NOT_AUTHENTICATED,
+                data: null
+            }
+        );
         this._accessToken = undefined;
     }
 
@@ -162,6 +236,7 @@ export class ClientTokenProvider {
             axios.interceptors.request.eject(this.requestInterceptor);
             axios.interceptors.response.eject(this.responseInterceptor);
         }
+        this.remoteAuthMessageHandler && this.authSync.removeEventListener('message', this.remoteAuthMessageHandler);
     }
 
     private isExpired(time1: number, time2: number): boolean {
