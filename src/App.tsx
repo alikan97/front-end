@@ -4,8 +4,6 @@ import {AllItemsPage,RequestItemPage, MyItemsPage, LoginPage, RegisterPage} from
 import { useAuth } from './hooks/use-auth';
 import { AuthStatus } from './types/auth';
 
-//TODO: DATA VIZ (D3)
-
 function App() {
   const {state} = useAuth();
 
